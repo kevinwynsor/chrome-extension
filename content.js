@@ -104,8 +104,13 @@ function extractPosts() {
 }
 
 // Scroll listener
+let scrollTimeout;
+
 document.addEventListener("scroll", () => {
-    extractPosts();
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+        extractPosts();
+    }, 500);
 });
 
 // Export
