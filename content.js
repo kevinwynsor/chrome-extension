@@ -93,16 +93,14 @@ function toggleState() {
 function extractPosts() {
     if (!enabled) return;
 
-    const posts = document.querySelectorAll('article[data-post-id^="t3"]');     
+    const posts = document.querySelectorAll('article[data-post-id^="t3"]');   
     posts.forEach(post => {
+        const scores = post.querySelectorAll('shreddit-post');
+        const scoreValue = scores[0].getAttribute('score');
         const text = post.innerText;
         collectedPosts.add(text);
+        collectedPostsUps.add(scoreValue);
     });
-    // voteElements.forEach(voteElement => {
-    //     console.log(voteElement)
-    //     const ups = voteElement.innerText;
-    //     collectedPostsUps.add(ups);
-    // });
 
     updateUI();
 }
@@ -118,11 +116,18 @@ function exportCSV() {
         alert("No posts collected yet.");
         return;
     }
+    if (collectedPostsUps.size === 0) {
+        alert("No posts collected yet.");
+        return;
+    }
 
-    let csvContent = "data:text/csv;charset=utf-8";
+    let csvContent = "data:text/csv;charset=utf-8,";
 
     collectedPosts.forEach(post => {
         csvContent += `"${post.replace(/"/g, '""')}"\n`;
+    });
+    collectedPostsUps.forEach(score => {
+        csvContent += `"${score}"\n`;
     });
 
     const link = document.createElement("a");
