@@ -1,5 +1,4 @@
-let collectedPosts = new Set(); 
-let collectedPostsUps = new Set(); 
+let collectedPosts = new Map(); 
 let enabled = false;
 
 // Load saved state
@@ -98,8 +97,7 @@ function extractPosts() {
         const scores = post.querySelectorAll('shreddit-post');
         const scoreValue = scores[0].getAttribute('score');
         const text = post.innerText;
-        collectedPosts.add(text);
-        collectedPostsUps.add(scoreValue);
+        collectedPosts.set(text, scoreValue);
     });
 
     updateUI();
@@ -116,18 +114,11 @@ function exportCSV() {
         alert("No posts collected yet.");
         return;
     }
-    if (collectedPostsUps.size === 0) {
-        alert("No posts collected yet.");
-        return;
-    }
 
     let csvContent = "data:text/csv;charset=utf-8,";
 
-    collectedPosts.forEach(post => {
-        csvContent += `"${post.replace(/"/g, '""')}"\n`;
-    });
-    collectedPostsUps.forEach(score => {
-        csvContent += `"${score}"\n`;
+    collectedPosts.forEach((score, post) => {
+        csvContent += `"${post.replace(/"/g, '""')}","${String(score).replace(/"/g, '""')}"\n`;
     });
 
     const link = document.createElement("a");
