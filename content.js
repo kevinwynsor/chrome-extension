@@ -1,4 +1,5 @@
-let collectedPosts = new Set();
+let collectedPosts = new Set(); 
+let collectedPostsUps = new Set(); 
 let enabled = false;
 
 // Load saved state
@@ -7,11 +8,19 @@ chrome.storage.local.get(["enabled"], (result) => {
     updateUI();
 });
 
+chrome.storage.local.get(["modalEnabled"], (result) => {
+    const modalEnabled = result.modalEnabled || false;
+    if (modalEnabled) {
+        createFloatingPanel();
+    }
+    updateUI();
+});
+
 // Listen for state change
 chrome.storage.onChanged.addListener((changes) => {
-    const modalEnabled = changes.modalEnabled ? changes.modalEnabled.newValue : false;
-    if (changes.enabled) {
-        enabled = changes.enabled.newValue;
+    const modalEnabled = changes.modalEnabled?.newValue ?? true;  
+    
+    if (changes.enabled) {enabled = changes.enabled.newValue;
         updateUI();
     }
     if (modalEnabled) {
@@ -84,14 +93,16 @@ function toggleState() {
 function extractPosts() {
     if (!enabled) return;
 
-    const posts = document.querySelectorAll('[id^="post-title"]');
-
+    const posts = document.querySelectorAll('article[data-post-id^="t3"]');     
     posts.forEach(post => {
-        const text = post.innerText.trim();
-        if (text.length > 50) {
-            collectedPosts.add(text);
-        }
+        const text = post.innerText;
+        collectedPosts.add(text);
     });
+    // voteElements.forEach(voteElement => {
+    //     console.log(voteElement)
+    //     const ups = voteElement.innerText;
+    //     collectedPostsUps.add(ups);
+    // });
 
     updateUI();
 }
@@ -108,7 +119,7 @@ function exportCSV() {
         return;
     }
 
-    let csvContent = "data:text/csv;charset=utf-8,Post\n";
+    let csvContent = "data:text/csv;charset=utf-8";
 
     collectedPosts.forEach(post => {
         csvContent += `"${post.replace(/"/g, '""')}"\n`;
