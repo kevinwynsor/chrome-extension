@@ -120,16 +120,22 @@ function exportCSV() {
         return;
     }
 
-    let csvContent = "data:text/csv;charset=utf-8,";
+    let csvContent = "post,score\n";
 
     collectedPosts.forEach((score, post) => {
-        csvContent += `"${post.replace(/"/g, '""')}","${String(score).replace(/"/g, '""')}"\n`;
+        const cleanPost = String(post).replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, ' ')
+        csvContent += `"${cleanPost}","${score}"\n`;
     });
 
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
     const link = document.createElement("a");
-    link.href = encodeURI(csvContent);
+    link.href = url;
     link.download = "posts.csv";
     document.body.appendChild(link);
     link.click();
+
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }

@@ -93,7 +93,6 @@ function extractPosts() {
     if (!enabled) return;
     
     const posts = document.querySelectorAll('div[dir="auto"][style="text-align: start;"]') 
-    console.log(posts)
     posts.forEach(post => {
         const text = post.outerText;
         console.log(text,"TEXT")
